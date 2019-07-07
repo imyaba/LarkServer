@@ -28,5 +28,5 @@ public interface ElementMapper extends Mapper<Element> {
      * @param roleId 角色Id
      * @return
      */
-    List<Element> getElemntByRoleId(@Param("roleId")String roleId);
+    List<Element> getElementByRoleId(@Param("roleId")String roleId);
 }

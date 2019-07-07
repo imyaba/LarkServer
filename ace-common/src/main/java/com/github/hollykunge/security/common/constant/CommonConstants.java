@@ -44,7 +44,11 @@ public class CommonConstants {
     /**
      * 院网关身份姓名
      */
-    public static final String PERSON_ID_ARG = "dnname";
+    public static final String PERSON_ID_ARG = "pid";
+    /**
+     * 院网关clientIp
+     */
+    public static final String CLIENT_IP = "clientIp";
     /**
      * 院网关解码
      */

@@ -5,7 +5,7 @@ import lombok.Data;
 import java.util.List;
 
 /**
- * @description: 权限业务实体
+ * @description: 用于用户菜单生成
  * @author: dd
  * @since: 2019-06-01
  */

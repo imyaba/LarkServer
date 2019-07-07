@@ -9,6 +9,7 @@ import com.github.hollykunge.security.admin.mapper.*;
 import com.github.hollykunge.security.admin.vo.*;
 import com.github.hollykunge.security.api.vo.authority.ActionEntitySet;
 import com.github.hollykunge.security.api.vo.authority.FrontPermission;
+import com.github.hollykunge.security.api.vo.authority.PermissionInfo;
 import com.github.hollykunge.security.common.biz.BaseBiz;
 import com.github.hollykunge.security.common.exception.BaseException;
 import com.github.hollykunge.security.common.util.EntityUtils;
@@ -309,6 +310,24 @@ public class RoleBiz extends BaseBiz<RoleMapper, Role> {
             });
         }
 
+    }
+
+    /**
+     * 根据角色获取菜单
+     */
+    public List<PermissionInfo> getMenusByRoleId(String roleId){
+        //根据roleId获取所有的menuId
+        List<Menu> menus = menuMapper.selectMenuByRoleId(roleId);
+        List<PermissionInfo> permissionInfos = new ArrayList<>();
+        for (Menu menu:menus){
+            PermissionInfo permissionInfo = new PermissionInfo();
+            permissionInfo.setCode(menu.getCode());
+            permissionInfo.setMenuId(menu.getId());
+            permissionInfo.setTitle(menu.getTitle());
+            permissionInfo.setUri(menu.getUri());
+            permissionInfos.add(permissionInfo);
+        }
+        return permissionInfos;
     }
 }
 

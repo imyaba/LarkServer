@@ -12,6 +12,7 @@ import com.github.hollykunge.security.admin.entity.User;
 import com.github.hollykunge.security.admin.vo.*;
 import com.github.hollykunge.security.api.vo.authority.ActionEntitySet;
 import com.github.hollykunge.security.api.vo.authority.FrontPermission;
+import com.github.hollykunge.security.api.vo.authority.PermissionInfo;
 import com.github.hollykunge.security.api.vo.user.UserInfo;
 import com.github.hollykunge.security.auth.client.jwt.UserAuthUtil;
 
@@ -123,16 +124,30 @@ public class PermissionService {
     }
 
     /**
-     * 根据userId获取角色所属菜单功能
+     * 根据userId获取角色所属菜单和功能,提供给前端获取userinfo使用
      * @param userId
      * @return
      */
-    public List<FrontPermission> getPermissionByUserId(String userId) {
+    private List<FrontPermission> getPermissionByUserId(String userId) {
         List<Role> roleByUserId = roleBiz.getRoleByUserId(userId);
         if(roleByUserId.size()==0){
             throw new BaseException("该人员没有访问权限...");
         }
         List<FrontPermission> authorityMenu = roleBiz.frontAuthorityMenu(roleByUserId.get(0).getId());
+        return authorityMenu;
+    }
+
+    /**
+     * 根据userId获取角色所属菜单，鉴权使用
+     * @param userId
+     * @return
+     */
+    public List<PermissionInfo> getPermissionMenuByUserId(String userId) {
+        List<Role> roleByUserId = roleBiz.getRoleByUserId(userId);
+        if(roleByUserId.size()==0){
+            throw new BaseException("该人员没有访问权限...");
+        }
+        List<PermissionInfo> authorityMenu = roleBiz.getMenusByRoleId(roleByUserId.get(0).getId());
         return authorityMenu;
     }
 

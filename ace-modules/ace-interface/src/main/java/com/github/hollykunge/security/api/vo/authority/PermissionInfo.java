@@ -1,66 +1,44 @@
 package com.github.hollykunge.security.api.vo.authority;
 
+import lombok.Data;
+
 import java.io.Serializable;
 
 /**
- * ${DESCRIPTION}
+ * 用于权限验证
  *
  * @author 协同设计小组
  * @create 2017-06-22 15:19
  */
+@Data
 public class PermissionInfo implements Serializable{
+    /**
+     * 角色id
+     */
+    private String roleId;
+    /**
+     * 菜单id
+     * permissionId->menuId
+     */
+    private String menuId;
+
     private String code;
-    private String type;
+    /**
+     * 权限标识
+     */
+    private String permissionId;
+    /**
+     * 菜单名称
+     * permissionName->title
+     */
+    private String title;
+    /**
+     * 方法列表
+     * actions->methods
+     */
+    private String methods;
+    /**
+     * 权限资源路径
+     */
     private String uri;
-    private String method;
-    private String name;
-    private String menu;
-
-    public String getMenu() {
-        return menu;
-    }
-
-    public void setMenu(String menu) {
-        this.menu = menu;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getMethod() {
-        return method;
-    }
-
-    public void setMethod(String method) {
-        this.method = method;
-    }
-
-    public String getCode() {
-        return code;
-    }
-
-    public void setCode(String code) {
-        this.code = code;
-    }
-
-    public String getType() {
-        return type;
-    }
-
-    public void setType(String type) {
-        this.type = type;
-    }
-
-    public String getUri() {
-        return uri;
-    }
-
-    public void setUri(String uri) {
-        this.uri = uri;
-    }
 }

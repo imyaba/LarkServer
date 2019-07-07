@@ -32,7 +32,7 @@
     and ARR.ROLE_ID = #{roleId}
     and ARR.RESOURCE_TYPE = #{type}
   </select>
-  <select id="getElemntByRoleId" resultMap="BaseResultMap">
+  <select id="getElementByRoleId" resultMap="BaseResultMap">
     select AE.* from ADMIN_ELEMENT AE
     left join ADMIN_RESOURCEROLEMAP ARR
     on AE.ID = ARR.RESOURCE_ID

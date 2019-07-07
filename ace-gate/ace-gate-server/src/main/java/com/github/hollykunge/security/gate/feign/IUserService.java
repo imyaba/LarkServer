@@ -1,6 +1,7 @@
 package com.github.hollykunge.security.gate.feign;
 
 import com.github.hollykunge.security.api.vo.authority.FrontPermission;
+import com.github.hollykunge.security.api.vo.authority.PermissionInfo;
 import com.github.hollykunge.security.gate.fallback.UserServiceFallback;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -19,7 +20,7 @@ import java.util.List;
 @FeignClient(value = "ace-admin",fallback = UserServiceFallback.class)
 public interface IUserService {
   @RequestMapping(value="/api/user/un/{userId}/permissions",method = RequestMethod.GET)
-  List<FrontPermission> getPermissionByUserId(@PathVariable("userId") String userId);
+  List<PermissionInfo> getPermissionByUserId(@PathVariable("userId") String userId);
   @RequestMapping(value="/api/permissions",method = RequestMethod.GET)
   List<FrontPermission> getAllPermissionInfo();
 }

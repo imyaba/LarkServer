@@ -35,7 +35,7 @@ public class AuthController {
     public ObjectRestResponse<?> createAuthenticationToken(
             @RequestBody JwtAuthenticationRequest authenticationRequest,HttpServletRequest request) throws Exception {
         final String token;
-        String pid = request.getHeader("dnname");
+        String pid = request.getHeader("pid");
         if (pid==""||pid==null){
             token = authService.login(authenticationRequest.getUsername(), authenticationRequest.getPassword());
         }else {

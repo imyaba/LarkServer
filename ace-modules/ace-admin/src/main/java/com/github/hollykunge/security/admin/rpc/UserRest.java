@@ -8,6 +8,7 @@ import com.github.hollykunge.security.admin.constant.AdminCommonConstant;
 import com.github.hollykunge.security.admin.entity.User;
 import com.github.hollykunge.security.admin.rpc.service.PermissionService;
 import com.github.hollykunge.security.api.vo.authority.FrontPermission;
+import com.github.hollykunge.security.api.vo.authority.PermissionInfo;
 import com.github.hollykunge.security.api.vo.user.UserInfo;
 import com.github.hollykunge.security.common.msg.ListRestResponse;
 import com.github.hollykunge.security.common.vo.OrgUser;
@@ -46,8 +47,8 @@ public class UserRest {
     }
 
     @RequestMapping(value = "/user/un/{userId}/permissions", method = RequestMethod.GET)
-    public @ResponseBody List<FrontPermission> getPermissionByUserId(@PathVariable("userId") String userId){
-        return permissionService.getPermissionByUserId(userId);
+    public @ResponseBody List<PermissionInfo> getPermissionByUserId(@PathVariable("userId") String userId){
+        return permissionService.getPermissionMenuByUserId(userId);
     }
 
     @RequestMapping(value = "/user/validate", method = RequestMethod.POST)

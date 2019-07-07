@@ -20,7 +20,7 @@ spring:
 #        enabled: true
   datasource:
     name: test
-    url: jdbc:oracle:thin:@${ORACLE_HOST:10.11.24.136}:${ORACLE_PORT:1521}:arltr
+    url: jdbc:oracle:thin:@${ORACLE_HOST:127.0.0.1}:${ORACLE_PORT:1521}:arltr
     username: lark_portal
     password: 123456
     # 使用druid数据源

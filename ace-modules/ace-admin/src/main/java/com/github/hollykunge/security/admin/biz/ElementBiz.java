@@ -74,7 +74,7 @@ public class ElementBiz extends BaseBiz<ElementMapper,Element> {
         List<Element> result = new ArrayList<>();
         List<Role> roleList = roleBiz.getRoleByUserId(userId);
         roleList.stream().forEach(roleEntity ->{
-            List<Element> roleElemet = mapper.getElemntByRoleId(roleEntity.getId());
+            List<Element> roleElemet = mapper.getElementByRoleId(roleEntity.getId());
             result.addAll(roleElemet);
         });
         return result;

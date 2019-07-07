@@ -1,5 +1,6 @@
 package com.github.hollykunge.security.admin.rest;
 
+import com.github.hollykunge.security.common.util.Query;
 import com.github.pagehelper.PageHelper;
 import com.github.hollykunge.security.admin.biz.GateLogBiz;
 import com.github.hollykunge.security.admin.entity.GateLog;
@@ -14,6 +15,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import tk.mybatis.mapper.entity.Example;
 
+import javax.servlet.http.HttpServletRequest;
+import java.util.Map;
+
 /**
  * ${DESCRIPTION}
  *
@@ -23,15 +27,28 @@ import tk.mybatis.mapper.entity.Example;
 @Controller
 @RequestMapping("gateLog")
 public class GateLogController extends BaseController<GateLogBiz,GateLog> {
-//    @RequestMapping(value = "/page",method = RequestMethod.GET)
-//    @ResponseBody
-//    public TableResultResponse<GateLog> page(@RequestParam(defaultValue = "10") int limit, @RequestParam(defaultValue = "1")int offset, String name){
-//        Example example = new Example(GateLog.class);
-//        if(StringUtils.isNotBlank(name)) {
-//            example.createCriteria().andLike("menu", "%" + name + "%");
-//        }
-//        int count = baseBiz.selectCountByExample(example);
-//        PageHelper.startPage(offset, limit);
-//        return new TableResultResponse<GateLog>(count,baseBiz.selectByExample(example));
-//    }
+
+    private final static String ANQUAN = "2";
+    private final static String RIZHI = "3";
+
+    @RequestMapping(value = "/page", method = RequestMethod.GET)
+    @ResponseBody
+    @Override
+    public TableResultResponse<GateLog> page(@RequestParam Map<String, Object> params) {
+        String pId = request.getHeader("userId");
+
+        if (pId == ANQUAN){
+            params.put("crtUser", pId);
+            Query query = new Query(params);
+            return baseBiz.selectByQueryEq(query);
+        }else if (pId == RIZHI){
+            params.put("crtUser", pId);
+            Query query = new Query(params);
+            return baseBiz.selectByQueryNotEq(query);
+        }else {
+            Query query = new Query(params);
+            return baseBiz.selectByQuery(query);
+        }
+
+    }
 }

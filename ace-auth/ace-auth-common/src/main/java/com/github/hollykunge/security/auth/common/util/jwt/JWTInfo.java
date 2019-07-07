@@ -3,7 +3,9 @@ package com.github.hollykunge.security.auth.common.util.jwt;
 import java.io.Serializable;
 
 /**
- * Created by 协同设计小组 on 2017/9/10.
+ *
+ * @author 协同设计小组
+ * @date 2017/9/10
  */
 public class JWTInfo implements Serializable,IJWTInfo {
     private String username;
