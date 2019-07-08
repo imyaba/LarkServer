@@ -3,11 +3,15 @@ package com.github.hollykunge.security.common.util;
 import com.github.hollykunge.security.common.vo.TreeNode;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 /**
  * 树节点方法类
- * Created by 协同设计小组 on 2017/6/12.
+ *
+ * @author 协同设计小组
+ * @date 2017/6/12
  */
 public class TreeUtil{
   /**

@@ -1,6 +1,7 @@
 package com.workhub.z.servicechat.service;
 
 import com.github.hollykunge.security.common.msg.TableResultResponse;
+import com.workhub.z.servicechat.VO.FileMonitoringVO;
 import com.workhub.z.servicechat.VO.GroupFileVo;
 import com.workhub.z.servicechat.entity.ZzGroupFile;
 
@@ -93,5 +94,6 @@ public interface ZzGroupFileService {
 
     //文件数据库信息补全
     public int fileUpdate(String fileId,String receiverId,String level,String sendId,String sendName,String receiverName) throws Exception;
-
+    //文件监控查询
+    public TableResultResponse<FileMonitoringVO> fileMonitoring(Map<String,Object> params) throws Exception;
 }

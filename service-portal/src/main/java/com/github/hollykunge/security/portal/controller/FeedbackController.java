@@ -13,4 +13,5 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("feedback")
 public class FeedbackController extends BaseController<FeedbackService, Feedback> {
+
 }

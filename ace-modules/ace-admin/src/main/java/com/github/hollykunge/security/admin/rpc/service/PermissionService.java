@@ -101,6 +101,7 @@ public class PermissionService {
         List<Menu> menus = menuBiz.selectListAll();
         List<FrontPermission> result = new ArrayList<FrontPermission>();
         menu2permission(menus, result);
+
         List<Element> elements = elementBiz.selectListAll();
         element2permission(result, elements);
         return result;

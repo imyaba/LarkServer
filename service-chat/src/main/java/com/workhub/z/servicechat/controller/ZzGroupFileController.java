@@ -2,15 +2,19 @@ package com.workhub.z.servicechat.controller;
 
 import com.github.hollykunge.security.common.msg.ObjectRestResponse;
 import com.github.hollykunge.security.common.msg.TableResultResponse;
+import com.workhub.z.servicechat.VO.FileMonitoringVO;
 import com.workhub.z.servicechat.VO.GroupFileVo;
 import com.workhub.z.servicechat.config.RandomId;
 import com.workhub.z.servicechat.config.common;
 import com.workhub.z.servicechat.entity.ZzGroupFile;
 import com.workhub.z.servicechat.service.ZzGroupFileService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import java.util.Date;
+import java.util.Map;
 
 /**
  * 群文件(ZzGroupFile)表控制层
@@ -27,7 +31,7 @@ public class ZzGroupFileController {
      */
     @Resource
     private ZzGroupFileService zzGroupFileService;
-
+    private static Logger log = LoggerFactory.getLogger(ZzGroupFileController.class);
     /**
      * 通过主键查询单条数据
      *
@@ -140,5 +144,21 @@ public class ZzGroupFileController {
         objectRestResponse.rel(true);
         objectRestResponse.data("成功");
         return objectRestResponse;
+    }
+    /**
+     * 上传文件监控
+     *参数说明：page 页码 size 每页几条 userName上传用户名称 dateBegin、dateEnd上传时间开始结束 isGroup 是否群主1是0否
+     * fileName文件名称 level密级
+     * @return
+     */
+    @PostMapping("/fileMonitoring")
+    public TableResultResponse<FileMonitoringVO> fileMonitoring(@RequestParam Map<String,Object> params){
+        TableResultResponse<FileMonitoringVO> pageInfo = null;
+        try {
+            pageInfo = this.zzGroupFileService.fileMonitoring(params);
+        } catch (Exception e) {
+            log.error(common.getExceptionMessage(e));
+        }
+        return pageInfo;
     }
 }

@@ -175,5 +175,10 @@ public class ZzUserGroupController{
         }
         return  objectRestResponse;
     }
-
+    //测试一下获取最近联系的接口
+    @PostMapping("/testGetContactVOList")
+    //id参数是userid
+    public void testGetContactVOList(@RequestParam("userId")String userId){
+        this.zzUserGroupService.getContactVOList(userId);
+    }
 }

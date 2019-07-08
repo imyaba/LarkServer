@@ -17,6 +17,8 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -68,6 +70,7 @@ public class OrgController extends BaseController<OrgBiz, Org> {
             parentTreeId = AdminCommonConstant.ROOT;
         }
         List<OrgTree> tree = getTree(baseBiz.selectListAll(), parentTreeId);
+
         return new ListRestResponse("",tree.size(),tree);
     }
 
@@ -79,8 +82,10 @@ public class OrgController extends BaseController<OrgBiz, Org> {
             String jsonNode = JSON.toJSONString(org);
             node = JSON.parseObject(jsonNode, OrgTree.class);
             node.setLabel(org.getOrgName());
+            node.setOrder(org.getOrderId());
             trees.add(node);
         }
+        Collections.sort(trees, Comparator.comparing(OrgTree::getOrder));
         return TreeUtil.bulid(trees, parentTreeId);
     }
 

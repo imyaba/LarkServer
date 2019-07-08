@@ -68,7 +68,7 @@ public class ZzFileManageServiceImpl implements ZzFileManageService {
             resMap.put("file_path", filepath + "/" + newFileName);
             resMap.put("file_size", String.valueOf(file.getSize()));
             resMap.put("file_upload_name", fileName);
-            resMap.put("file_ext", file_ext);
+            resMap.put("file_ext", file_ext.toLowerCase());
             resMap.put("file_type", file_type);
         } catch (Exception e) {
             e.printStackTrace();

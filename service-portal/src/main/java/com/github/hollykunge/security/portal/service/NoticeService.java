@@ -2,15 +2,22 @@ package com.github.hollykunge.security.portal.service;
 
 import com.github.hollykunge.security.common.biz.BaseBiz;
 import com.github.hollykunge.security.common.exception.BaseException;
+import com.github.hollykunge.security.common.msg.TableResultResponse;
+import com.github.hollykunge.security.common.util.Query;
+import com.github.hollykunge.security.entity.Feedback;
 import com.github.hollykunge.security.entity.Notice;
 import com.github.hollykunge.security.mapper.NoticeMapper;
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import tk.mybatis.mapper.entity.Example;
 
+import java.lang.reflect.ParameterizedType;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -50,5 +57,19 @@ public class NoticeService extends BaseBiz<NoticeMapper, Notice> {
         }).collect(Collectors.toList());
         Collections.sort(notices);
         return notices;
+    }
+    @Override
+    public TableResultResponse<Notice> selectByQuery(Query query) {
+        Class<Notice> clazz = (Class<Notice>) ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[1];
+        Example example = new Example(clazz);
+        if(query.entrySet().size()>0) {
+            Example.Criteria criteria = example.createCriteria();
+            for (Map.Entry<String, Object> entry : query.entrySet()) {
+                criteria.andLike(entry.getKey(), "%" + entry.getValue().toString() + "%");
+            }
+        }
+        Page<Object> result = PageHelper.startPage(query.getPageNo(), query.getPageSize());
+        List<Notice> list = mapper.selectByExample(example);
+        return new TableResultResponse<Notice>(result.getPageSize(), result.getPageNum() ,list.size()/10+1, list.size(), list);
     }
 }

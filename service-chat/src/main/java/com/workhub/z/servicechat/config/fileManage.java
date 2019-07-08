@@ -5,6 +5,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
+import java.net.URLEncoder;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -101,7 +102,16 @@ public class fileManage {
                 "must-revalidate, post-check=0, pre-check=0");
         OutputStream out = null;
         InputStream in = null;
-        fileName = new String(fileName.getBytes("GBK"), "ISO-8859-1");
+        fileName = URLEncoder.encode(fileName, "UTF-8").replaceAll("%5B", "\\[")
+                .replaceAll("%5D", "\\]").replaceAll("\\+", "%20")
+                .replaceAll("%28", "\\(").replaceAll("%29", "\\)")
+                .replaceAll("%3B", ";").replaceAll("%40", "@")
+                .replaceAll("%23", "\\#").replaceAll("%26", "\\&")
+                .replaceAll("%7B", "\\{").replaceAll("%7D", "\\}")
+                .replaceAll("%21", "\\!").replaceAll("%24", "\\$")
+                .replaceAll("%21", "\\!").replaceAll("%25", "\\%")
+                .replaceAll("%5E", "\\^").replaceAll("%2B", "\\+");
+//        fileName = new String(fileName.getBytes("GBK"), "ISO-8859-1");
         response.addHeader("Content-disposition", "attachment;filename=" + fileName);// 设定输出文件头
 
         try {

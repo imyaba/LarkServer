@@ -32,33 +32,9 @@
   </resultMap>
   <select id="selectMenuByRoleId" resultMap="BaseResultMap">
     select AM.* from ADMIN_MENU AM
-    left join ADMIN_RESOURCEROLEMAP ARR
-    on AM.ID = ARR.RESOURCE_ID
-    where  ARR.ROLE_ID = #{roleId}
-    and ARR.RESOURCE_TYPE = 'menu'
-  </select>
-    <!--<select id="selectAuthorityMenuByUserId" resultMap="BaseResultMap">-->
-     <!--select distinct t.* from base_resource_authority ra-->
-    <!--inner join base_menu t-->
-    <!--on ra.resource_id = t.id-->
-    <!--and ra.authority_id in (-->
-      <!--select group_id from base_group_member where user_id = #{userId}-->
-      <!--union select group_id from base_group_leader where user_id = #{userId}-->
-    <!--)-->
-    <!--and ra.authority_type = 'group'-->
-    <!--and ra.resource_type = 'menu'-->
-    <!--order by t.id-->
-  <!--</select>-->
-    <!--<select id="selectAuthoritySystemByUserId" resultMap="BaseResultMap">-->
-        <!--select distinct t.* from base_resource_authority ra-->
-        <!--inner join base_menu t-->
-        <!--on ra.resource_id = t.id-->
-        <!--and ra.authority_id in (-->
-        <!--select group_id from base_group_member where user_id = #{userId}-->
-        <!--union select group_id from base_group_leader where user_id = #{userId}-->
-        <!--)-->
-        <!--and ra.authority_type = 'group'-->
-        <!--and ra.resource_type = 'menu'-->
-        <!--where t.parent_id = -1-->
-    <!--</select>-->
+     left join ADMIN_RESOURCEROLEMAP ARR
+      on AM.ID = ARR.RESOURCE_ID
+        where  ARR.ROLE_ID = #{roleId}
+       and ARR.RESOURCE_TYPE = 'menu'
+    </select>
 </mapper>

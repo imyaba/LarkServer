@@ -48,7 +48,8 @@ public class OrgBiz extends BaseBiz<OrgMapper, Org> {
         userParams.setOrgCode(orgCode);
         Example userExample = new Example(User.class);
         Example.Criteria criteria = userExample.createCriteria();
-        criteria.andLike("orgCode","%"+orgCode+"%");
+        //TODO:处理删除人员。deleted为2或者null
+        criteria.andLike("orgCode","%"+orgCode+"%").andNotEqualTo("deleted","2").andNotEqualTo("deleted",null);
         if(!StringUtils.isEmpty(secretLevels)){
             String[] secretLevelArray = secretLevels.split(",");
             List<String> secretList = Arrays.asList(secretLevelArray);
@@ -60,6 +61,7 @@ public class OrgBiz extends BaseBiz<OrgMapper, Org> {
             criteria.andNotEqualTo("pId",pid);
         }
         List<User> users = userMapper.selectByExample(userExample);
+        Collections.sort(users, Comparator.comparing(User::getOrderId));
         List<AdminUser> userList;
         userList = JSON.parseArray(JSON.toJSONString(users),AdminUser.class);
         return userList;
@@ -118,7 +120,8 @@ public class OrgBiz extends BaseBiz<OrgMapper, Org> {
                     params.setOrgCode(super.selectById(children.getId()).getOrgCode());
                     List<User> users = userBiz.selectList(params);
                     Collections.sort(users, Comparator.comparing(User::getOrderId));
-                    users.stream().forEach(user ->{
+                    //TODO:处理删除人员。deleted为2或者null
+                    users.stream().filter(user -> !StringUtils.isEmpty(user.getDeleted()) && !user.getDeleted().equals("2")).forEach(user ->{
                         OrgUser orgUser = new OrgUser();
                         orgUser.setIcon(user.getAvatar());
                         orgUser.setKey(user.getId());

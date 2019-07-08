@@ -3,6 +3,7 @@ package com.workhub.z.servicechat.service.impl;
 import com.github.hollykunge.security.common.msg.TableResultResponse;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import com.workhub.z.servicechat.VO.FileMonitoringVO;
 import com.workhub.z.servicechat.VO.GroupFileVo;
 import com.workhub.z.servicechat.config.common;
 import com.workhub.z.servicechat.dao.ZzGroupFileDao;
@@ -228,6 +229,26 @@ public class ZzGroupFileServiceImpl implements ZzGroupFileService {
     //文件数据库信息补全
     public int fileUpdate(String fileId,String receiverId,String level,String sendId,String sendName,String receiverName) throws Exception{
         return this.zzGroupFileDao.fileUpdate( fileId,receiverId, level,sendId,sendName,receiverName);
+    }
+    //文件监控查询
+    //参数说明：page 页码 size 每页几条 userName上传用户名称 dateBegin、dateEnd上传时间开始结束 isGroup 是否群主1是0否
+    //fileName文件名称 level密级
+    public TableResultResponse<FileMonitoringVO> fileMonitoring(Map<String,Object> params) throws Exception{
+        int page=Integer.valueOf(common.nulToEmptyString(params.get("page")));
+        int size=Integer.valueOf(common.nulToEmptyString(params.get("size")));
+        PageHelper.startPage(page, size);
+        List<FileMonitoringVO> dataList =this.zzGroupFileDao.fileMonitoring(params);
+        //null的String类型属性转换空字符串
+        common.putVoNullStringToEmptyString(dataList);
+        PageInfo<FileMonitoringVO> pageInfo = new PageInfo<>(dataList);
+        TableResultResponse<FileMonitoringVO> res = new TableResultResponse<FileMonitoringVO>(
+                pageInfo.getPageSize(),
+                pageInfo.getPageNum(),
+                pageInfo.getPages(),
+                pageInfo.getTotal(),
+                pageInfo.getList()
+        );
+        return res;
     }
 
 }

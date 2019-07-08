@@ -169,7 +169,7 @@ public class RoleBiz extends BaseBiz<RoleMapper, Role> {
         List<AdminPermission> resultPermission = new ArrayList<>();
         //获取所有的menu和所有的menu下的所有的Element
         List<Menu> menus = menuMapper.selectAll();
-        menus.stream().forEach(menu -> {
+        for (Menu menu: menus){
             //根据menuid获取所有的Menu下的Element
             Element params = new Element();
             params.setMenuId(menu.getId());
@@ -177,9 +177,9 @@ public class RoleBiz extends BaseBiz<RoleMapper, Role> {
             List<Element> allElement = elementMapper.select(params);
             //roleId下的element
             List<Element> resourceElement = elementMapper.
-                    getAuthorityMenuElement(roleId,menu.getId(), AdminCommonConstant.RESOURCE_TYPE_BTN);
+                    getAuthorityMenuElement(roleId, menu.getId(), AdminCommonConstant.RESOURCE_TYPE_BTN);
 
-            List<AdminElement> menuElemnt = this.setDefaultCheck(allElement,resourceElement);
+            List<AdminElement> menuElement = this.setDefaultCheck(allElement,resourceElement);
             //添加AdminPermission参数
             AdminPermission adminPermission = new AdminPermission();
             BeanUtils.copyProperties(menu,adminPermission);
@@ -187,9 +187,9 @@ public class RoleBiz extends BaseBiz<RoleMapper, Role> {
             adminPermission.setMenuId(menu.getId());
             adminPermission.setRoleId(roleId);
             //给菜单赋值所有的Element
-            adminPermission.setActionEntitySetList(menuElemnt);
+            adminPermission.setActionEntitySetList(menuElement);
             resultPermission.add(adminPermission);
-        });
+        }
         return resultPermission;
     }
 
@@ -247,17 +247,20 @@ public class RoleBiz extends BaseBiz<RoleMapper, Role> {
         //定义固定返回参数
         List<FrontPermission> resultPermission = new ArrayList<>();
         //获取权限下的menu
-        List<Menu> menus = menuMapper.selectAll();
-        menus.parallelStream().forEach(menu -> {
+        List<Menu> menus = menuMapper.selectMenuByRoleId(roleId);
+
+        if (menus.size()<12){
+            String sss="";
+        }
+        for (Menu menu:menus){
             //roleId下的element
-            List<Element> resourceElement = elementMapper.
-                    getAuthorityMenuElement(roleId,menu.getId(), AdminCommonConstant.RESOURCE_TYPE_BTN);
-            List<Element> elementList = resourceElement.stream().filter((Element e) -> menu.getId().contains(e.getMenuId())).collect(Collectors.toList());
+            List<Element> elementList = elementMapper.getAuthorityMenuElement(roleId, menu.getId(), AdminCommonConstant.RESOURCE_TYPE_BTN);
+//            List<Element> elementList = resourceElement.stream().filter((Element e) -> menu.getId().contains(e.getMenuId())).collect(Collectors.toList());
             if(elementList.size() > 0){
                 FrontPermission frontPermission = this.transferFrontPermission(menu, roleId, elementList);
                 resultPermission.add(frontPermission);
             }
-        });
+        }
         return resultPermission;
     }
 
@@ -275,7 +278,9 @@ public class RoleBiz extends BaseBiz<RoleMapper, Role> {
         //单独处理menuid,roleId
         frontPermission.setMenuId(menu.getId());
         frontPermission.setRoleId(roleId);
+
         List<ActionEntitySet> actionEntitySet = JSON.parseArray(JSON.toJSONString(elements),ActionEntitySet.class);
+
         actionEntitySet.parallelStream().forEach(actionEntitySetEntity ->{
             actionEntitySetEntity.setDefaultCheck(true);
         });
