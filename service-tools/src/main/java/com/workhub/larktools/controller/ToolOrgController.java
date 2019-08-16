@@ -127,7 +127,7 @@ public class ToolOrgController {
      * @Author: zhuqz
      * @Date: 2019/8/14
      **/
-    @GetMapping("/query")
+    @PostMapping("/query")
     public ListRestResponse<ToolTreeVo> query(@RequestParam Map params) throws Exception{
         return  this.toolOrgService.query(params);
     }

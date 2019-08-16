@@ -14,12 +14,12 @@
         <result property="id" column="ID" jdbcType="VARCHAR"/>
         <result property="nodeName" column="NODE_NAME" jdbcType="VARCHAR"/>
         <result property="pid" column="PID" jdbcType="VARCHAR"/>
-        <result property="createTime" column="CREATE_TIME" jdbcType="VARCHAR"/>
+        <result property="createTime" column="CREATE_TIME" jdbcType="DATE"/>
         <result property="orderBy" column="ORDER_BY" jdbcType="VARCHAR"/>
         <result property="creator" column="CREATOR" jdbcType="VARCHAR"/>
-        <result property="updateTime" column="UPDATE_TIME" jdbcType="VARCHAR"/>
+        <result property="updateTime" column="UPDATE_TIME" jdbcType="DATE"/>
         <result property="updator" column="UPDATOR" jdbcType="VARCHAR"/>
-        <result property="isDelete" column="I_SDELETE" jdbcType="VARCHAR"/>
+        <result property="isDelete" column="IS_DELETE" jdbcType="VARCHAR"/>
     </resultMap>
     <!--新增所有列-->
     <insert id="add" >
