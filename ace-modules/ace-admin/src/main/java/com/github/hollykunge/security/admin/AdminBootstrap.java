@@ -25,7 +25,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @EnableDiscoveryClient
 @EnableCircuitBreaker
 @SpringBootApplication
-@EnableFeignClients({"com.github.hollykunge.security.auth.client.feign"})
+@EnableFeignClients({"com.github.hollykunge.security.auth.client.feign","com.github.hollykunge.security.admin.feign"})
 @EnableScheduling
 @EnableAceAuthClient
 @EnableAceCache

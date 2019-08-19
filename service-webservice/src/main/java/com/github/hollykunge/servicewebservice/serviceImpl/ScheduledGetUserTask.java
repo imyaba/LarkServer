@@ -1,8 +1,11 @@
 package com.github.hollykunge.servicewebservice.serviceImpl;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import com.github.hollykunge.servicewebservice.service.EryuanUserService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.Trigger;
@@ -15,6 +18,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 @Service
+@Slf4j
 public class ScheduledGetUserTask implements SchedulingConfigurer {
 
     @Autowired
@@ -50,6 +54,9 @@ public class ScheduledGetUserTask implements SchedulingConfigurer {
 
                 System.out.println("TaskCronChange task is running ... " + cron);
                 eryuanUserService.saveEryuanUser();
+                DateFormat dateFormat =new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                Date date =new Date();
+                log.info("======定时执行主数据同步任务成功======" + dateFormat.format(date));
             }
         };
 

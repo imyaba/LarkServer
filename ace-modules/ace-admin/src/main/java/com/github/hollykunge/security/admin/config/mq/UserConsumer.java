@@ -42,7 +42,8 @@ public class UserConsumer {
     @RabbitHandler
     @RabbitListener(queues = CommonConstants.ADMINUSER_QUEUE_NAME, containerFactory = "rabbitListenerContainerFactory")
     public void handleMessage(Message message, @Headers Map<String, Object> headers, Channel channel) throws Exception {
-        String msg = new String(message.getBody(), "UTF-8");
+
+        String msg = new String(message.getBody(), "gb2312");
         List<AdminUserVO> adminUserVOS = JSONArray.parseArray(msg, AdminUserVO.class);
         List<AdminUserVO> setMqUserVO = new ArrayList<AdminUserVO>();
         for (AdminUserVO adminUserVO :
@@ -77,7 +78,8 @@ public class UserConsumer {
             //如果setMqUserVO不为空，通知提供者，该批量数据含有身份证号为空的数据。
             String jsonStr = JSONObject.toJSONString(setMqUserVO);
             Message noticeMessage = MessageBuilder.withBody(jsonStr.getBytes())
-                    .setContentType(MessageProperties.CONTENT_TYPE_JSON).setContentEncoding("utf-8")
+                    .setContentType(MessageProperties.CONTENT_TYPE_JSON)
+//                    .setContentEncoding("utf-8")
                     .setMessageId(UUID.randomUUID() + "").build();
             produceSenderConfig.adminUserOrOrgSend(noticeMessage, CommonConstants.ADMIN_UNACK_USER_KEY);
         }

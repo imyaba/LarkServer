@@ -55,7 +55,7 @@ spring:
 #    maxOpenPreparedStatements: 20
   rabbitmq:
     #需要修改地址
-    host: 10.11.24.136
+    host: 10.11.24.135
     port: 5672
     username: hollykunge
     password: 123456

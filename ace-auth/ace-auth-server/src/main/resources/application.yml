@@ -8,7 +8,7 @@ spring:
     redis:
         database: 1
         #需要修改地址
-        host: ${REDIS_HOST:10.11.24.138}
+        host: ${REDIS_HOST:10.11.24.135}
         port: ${REDIS_PORT:6379}
         pool:
             max-active: 200

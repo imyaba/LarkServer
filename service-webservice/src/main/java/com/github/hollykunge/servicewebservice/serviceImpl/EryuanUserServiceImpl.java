@@ -11,6 +11,7 @@ import com.github.hollykunge.servicewebservice.model.EryuanUser;
 import com.github.hollykunge.servicewebservice.service.EryuanUserService;
 
 
+import lombok.extern.slf4j.Slf4j;
 import org.dom4j.DocumentException;
 import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
@@ -35,7 +36,7 @@ import javax.xml.rpc.ServiceException;
 
 @Service
 @Transactional
-
+@Slf4j
 public class EryuanUserServiceImpl implements EryuanUserService {
 
     @Autowired
@@ -468,6 +469,7 @@ public class EryuanUserServiceImpl implements EryuanUserService {
                 //将eryuanOrg塞入adminOrg
                 saveAdminOrg(eryuanOrg,orgVOList,ids);
                 System.out.println("部门更新----->" + CASICORGCODE + ":" + ORGNAME);
+                log.info("部门更新----->" + CASICORGCODE + ":" + ORGNAME);
             } else {
                 String ID = UUID.randomUUID().toString().replaceAll("-", "");
                 eryuanOrg.setID(ID);
@@ -475,6 +477,7 @@ public class EryuanUserServiceImpl implements EryuanUserService {
                 //将eryuanOrg塞入adminOrg
                 saveAdminOrg(eryuanOrg,orgVOList,ids);
                 System.out.println("++++++++新增部门----->" + CASICORGCODE + ":" + ORGNAME);
+                log.info("++++++++新增部门----->" + CASICORGCODE + ":" + ORGNAME);
             }
         }
     }
@@ -559,6 +562,7 @@ public class EryuanUserServiceImpl implements EryuanUserService {
                 //将eryuanUser信息塞入adminUser
                 saveAdminUser(eryuanUser,userVOList,ids);
                 System.out.println("用户更新----->" + P_ID + ":" + OPERATOR_NAME);
+                log.info("用户更新----->" + P_ID + ":" + OPERATOR_NAME);
             } else {
                 String ID = UUID.randomUUID().toString().replaceAll("-", "");
                 eryuanUser.setID(ID);
@@ -566,6 +570,7 @@ public class EryuanUserServiceImpl implements EryuanUserService {
                 //将eryuanUser信息塞入adminUser
                 saveAdminUser(eryuanUser,userVOList,ids);
                 System.out.println("++++++++新增用户----->" + P_ID + ":" + OPERATOR_NAME);
+                log.info("++++++++新增用户----->" + P_ID + ":" + OPERATOR_NAME);
             }
                               /*  @Autowired
                                 private UserMapper userMapper;*/

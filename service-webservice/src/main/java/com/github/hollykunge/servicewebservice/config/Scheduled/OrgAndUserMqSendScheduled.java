@@ -62,7 +62,7 @@ public class OrgAndUserMqSendScheduled {
         }
         log.info("没有未同步成功的org数据。");
     }
-    @Scheduled(cron = "0 0 0,6,13,18,21 * * ?")
+    @Scheduled(cron = "0 0 1,6,13,18,22 * * ?")
     public void refreshUserMq(){
         Example example = new Example(EryuanOrg.class);
         example.createCriteria().andEqualTo("isSuccess","0");
