@@ -1,5 +1,7 @@
 package com.github.hollykunge.comtants;
 
+import com.github.hollykunge.util.DesCodeEnum;
+
 /**
  * file服务用常量类
  * @author zhhongyu
@@ -34,10 +36,35 @@ public class FileComtants {
     /**
      * 加密类型
      */
-    public static final String ENCRYPT_TYPE = "DES";
+    public static final String ENCRYPT_TYPE = DesCodeEnum.DESEDE_ECB_NoPadding.getCode();
+
+    public static final String KEY_ENCRYPT_TYPE = DesCodeEnum.DESEDE.getCode();
     /**
      * key生成规则
      *
      */
     public static final String ENCRYPT_ROLE = "FAST FILE DE-ENCRYPT";
+    /**
+     * 加密标识
+     */
+    public static final String FILE_ENCRYPT = "encrypt";
+    /**
+     * 解密标识
+     */
+    public static final String FILE_DECRYPT = "decrypt";
+    /**
+     * 自定义加密补位规则
+     */
+    public static final byte FILE_ENCRYPT_SUB_RULE = 22;
+    /**
+     * 文件分块上传标识
+     */
+    public static final String REDIS_KEY_APPEND_FILE = "append_file"+FileComtants.REDIS_KEY_CON_APPEND_FILE;
+
+    public static final String REDIS_KEY_PRE_APPEND_FILE = "temp";
+
+    public static final String REDIS_KEY_CON_APPEND_FILE = ":";
+
+    public static final String REDIS_KEY_PRE = FileComtants.REDIS_KEY_PRE_APPEND_FILE+FileComtants.REDIS_KEY_CON_APPEND_FILE;
+
 }
