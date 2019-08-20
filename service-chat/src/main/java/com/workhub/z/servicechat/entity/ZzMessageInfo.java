@@ -25,7 +25,8 @@ public class ZzMessageInfo implements Serializable {
     private String content;
     //群组（greoup）,私聊（user）
     private String type;
-
+    //是否跨越场所1是0否
+    private String iscross;
 
     public String getMsgId() {
         return msgId;
@@ -83,4 +84,11 @@ public class ZzMessageInfo implements Serializable {
         this.type = type;
     }
 
+    public String getIscross() {
+        return iscross;
+    }
+
+    public void setIscross(String iscross) {
+        this.iscross = iscross;
+    }
 }

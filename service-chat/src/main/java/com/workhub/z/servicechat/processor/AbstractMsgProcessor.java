@@ -1,15 +1,19 @@
 package com.workhub.z.servicechat.processor;
 
 import com.alibaba.fastjson.JSON;
+import com.github.hollykunge.security.api.vo.user.UserInfo;
 import com.workhub.z.servicechat.VO.MsgAnswerVO;
+import com.workhub.z.servicechat.config.common;
 import com.workhub.z.servicechat.entity.ZzDictionaryWords;
+import com.workhub.z.servicechat.entity.ZzGroup;
 import com.workhub.z.servicechat.entity.ZzMessageInfo;
 import com.workhub.z.servicechat.entity.ZzMsgReadRelation;
+import com.workhub.z.servicechat.feign.IUserService;
 import com.workhub.z.servicechat.server.IworkServerConfig;
 import com.workhub.z.servicechat.service.ZzDictionaryWordsService;
+import com.workhub.z.servicechat.service.ZzGroupService;
 import com.workhub.z.servicechat.service.ZzMessageInfoService;
 import com.workhub.z.servicechat.service.ZzMsgReadRelationService;
-import org.nutz.json.Json;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.tio.core.ChannelContext;
@@ -19,9 +23,11 @@ import org.tio.websocket.common.WsResponse;
 import java.util.Date;
 import java.util.List;
 
-import static com.workhub.z.servicechat.config.MessageType.*;
+import static com.workhub.z.servicechat.config.MessageType.MSG_ANSWER;
+import static com.workhub.z.servicechat.config.MessageType.SUCCESS_ANSWER;
 import static com.workhub.z.servicechat.config.RandomId.getUUID;
-import static com.workhub.z.servicechat.config.common.*;
+import static com.workhub.z.servicechat.config.common.getJsonStringKeyValue;
+import static com.workhub.z.servicechat.config.common.stringSearch;
 @Service
 public class AbstractMsgProcessor {
 
@@ -31,6 +37,11 @@ public class AbstractMsgProcessor {
     ZzMsgReadRelationService msgReadRelationService;
     @Autowired
     ZzMessageInfoService messageInfoService;
+    @Autowired
+    IUserService iUserServiceUserService;
+    @Autowired
+    ZzGroupService zzGroupService;
+
 
     public WsResponse getWsResponse(String msg){
         return WsResponse.fromText(msg, IworkServerConfig.CHARSET);
@@ -95,6 +106,16 @@ public class AbstractMsgProcessor {
         messageInfo.setSender(sender);
         messageInfo.setMsgId(msgId);
         messageInfo.setType(type);
+        String iscross = "0";//是否跨越场所1是0否
+        if("GROUP".equals(type)){//如是群消息
+            ZzGroup group = zzGroupService.queryById(receiver);
+            iscross = group.getIscross();
+        }else{//如果是私聊消息
+            List<UserInfo> userInfoList = iUserServiceUserService.userList(sender+","+receiver);
+            boolean crossFlg = common.isGroupCross(userInfoList);
+            iscross = (crossFlg)?"1":"0";
+        }
+        messageInfo.setIscross(iscross);
         messageInfoService.insert(messageInfo);
     }
 
