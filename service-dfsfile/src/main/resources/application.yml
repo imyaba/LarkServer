@@ -107,3 +107,25 @@ hystrix:
         isolation:
           thread:
             timeoutInMilliseconds: 60000
+
+ribbon:
+  eureka:
+    enabled: true
+  ReadTimeout: 30000
+  ConnectTimeout: 30000
+  MaxAutoRetries: 0
+  MaxAutoRetriesNextServer: 1
+  OkToRetryOnAllOperations: false
+  httpclient:
+    enabled: false
+  okhttp:
+    enabled: true
+
+auth:
+  serviceId: ace-auth
+  user:
+    token-header: Authorization
+  client:
+    token-header: client-token
+    id: service-dfsfile  #不填则默认读取spring.application.name
+    secret: 123456

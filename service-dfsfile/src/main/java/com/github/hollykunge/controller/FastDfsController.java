@@ -5,18 +5,22 @@ import com.github.hollykunge.biz.FileInfoBiz;
 import com.github.hollykunge.comtants.FileComtants;
 import com.github.hollykunge.entity.FileInfoEntity;
 import com.github.hollykunge.entity.FileServerPathEntity;
+import com.github.hollykunge.jwt.FileJwtInfo;
 import com.github.hollykunge.security.common.exception.BaseException;
 import com.github.hollykunge.security.common.msg.ObjectRestResponse;
 import com.github.hollykunge.security.common.rest.BaseController;
 import com.github.hollykunge.security.common.util.EntityUtils;
+import com.github.hollykunge.security.common.util.UUIDUtils;
 import com.github.hollykunge.security.common.vo.FileInfoVO;
 import com.github.hollykunge.util.AppendFileUtils;
 import com.github.hollykunge.util.FastDFSClientWrapper;
 import com.github.hollykunge.util.FileTypeEnum;
+import com.github.hollykunge.vo.JwtInfoVO;
 import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
 import com.netflix.hystrix.contrib.javanica.annotation.HystrixProperty;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.util.StringUtils;
@@ -43,6 +47,8 @@ import java.util.Map;
 public class FastDfsController extends BaseController<FileInfoBiz, FileInfoEntity> {
     @Autowired
     private FastDFSClientWrapper dfsClient;
+    @Autowired
+    private FileJwtInfo fileJwtInfo;
 
 
 //    @PostMapping("/upload")
@@ -257,16 +263,21 @@ public class FastDfsController extends BaseController<FileInfoBiz, FileInfoEntit
         fileSize = URLDecoder.decode(fileSize, "UTF-8");
         log.info("接收到文件{}开始...", fileName);
         FileInfoEntity fileInfoEntity = null;
+        JwtInfoVO jwtInfoVO = fileJwtInfo.getJwtInfoVO(request);
         if (Integer.parseInt(currentNo) == Integer.parseInt(totalSize)) {
-            fileInfoEntity = this.transferFileInfo(fileName, Double.valueOf(fileSize));
+            fileInfoEntity = this.transferFileInfo(fileName, Double.valueOf(fileSize),jwtInfoVO);
         }
         //文件分块上传，加密方式采用文件流加密
-        ObjectRestResponse<FileInfoVO> result = new AppendFileHystrixCommondBiz(baseBiz, file, key, currentNo, totalSize, fileInfoEntity,null).execute();
+        ObjectRestResponse<FileInfoVO> result = new AppendFileHystrixCommondBiz(baseBiz, file, key, currentNo, totalSize, fileInfoEntity,jwtInfoVO).execute();
         return result;
     }
 
-    private FileInfoEntity transferFileInfo(String fileName, Double fileSize) throws Exception {
+    private FileInfoEntity transferFileInfo(String fileName, Double fileSize,JwtInfoVO jwtInfoVO) throws Exception {
         FileInfoEntity fileInfoEntity = new FileInfoEntity();
+        fileInfoEntity.setId(UUIDUtils.generateShortUuid());
+        if(jwtInfoVO != null){
+            BeanUtils.copyProperties(jwtInfoVO,fileInfoEntity);
+        }
         String suffix = "";
         String fileExt = "";
         String regixValue = FileComtants.FILE_REGIX_VALUE;
@@ -285,7 +296,7 @@ public class FastDfsController extends BaseController<FileInfoBiz, FileInfoEntit
         fileInfoEntity.setFileType(fileType.toLowerCase());
         fileInfoEntity.setFileSize(fileSize);
         fileInfoEntity.setStatus(FileComtants.EFECTIVE_FILE);
-        EntityUtils.setCreatAndUpdatInfo(fileInfoEntity);
+
         return fileInfoEntity;
     }
 
