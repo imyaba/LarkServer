@@ -3,22 +3,18 @@ package com.workhub.z.servicechat.config;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.github.hollykunge.security.common.util.UUIDUtils;
+import com.github.hollykunge.security.common.vo.rpcvo.MessageContent;
 import com.workhub.z.servicechat.VO.GroupInfoVO;
 import com.workhub.z.servicechat.entity.ZzGroup;
 import com.workhub.z.servicechat.entity.ZzGroupMsg;
 import com.workhub.z.servicechat.entity.ZzPrivateMsg;
-import com.workhub.z.servicechat.entity.ZzUserGroup;
 import com.workhub.z.servicechat.model.CreateGroupDto;
 import com.workhub.z.servicechat.model.GroupTaskDto;
 import com.workhub.z.servicechat.model.UserListDto;
-import com.github.hollykunge.security.common.vo.rpcvo.*;
-import java.io.IOException;
+
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-import java.util.UUID;
 
 import static com.workhub.z.servicechat.config.RandomId.getUUID;
 
@@ -132,6 +128,9 @@ public abstract class VoToEntity {
         groupInfo.setName(zzGroup.getGroupName());
         groupInfo.setSecurityClass(zzGroup.getLevels());
         groupInfo.setSubject(zzGroup.getPname());
+        groupInfo.setCreatorName(common.nulToEmptyString(zzGroup.getCreatorName()));
+        groupInfo.setGroupOwnerId(common.nulToEmptyString(zzGroup.getGroupOwnerId()));
+        groupInfo.setGroupOwnerName(common.nulToEmptyString(zzGroup.getGroupOwnerName()));
         return groupInfo;
     }
 }
