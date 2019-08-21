@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.workhub.larktools.dao.ToolUploadDao">
+
+    <resultMap id="toolFile" type="com.workhub.larktools.entity.ToolFile">
+        <result property="id" column="ID" jdbcType="VARCHAR"/>
+        <result property="fileId" column="FILE_ID" jdbcType="VARCHAR"/>
+        <result property="fileName" column="FILE_NAME" jdbcType="VARCHAR"/>
+        <result property="fileExt" column="FILE_EXT" jdbcType="VARCHAR"/>
+        <result property="createTime" column="CREATE_TIME" jdbcType="DATE"/>
+        <result property="creator" column="CREATOR" jdbcType="VARCHAR"/>
+        <result property="creatorName" column="CREATOR_NAME" jdbcType="VARCHAR"/>
+        <result property="updateTime" column="UPDATE_TIME" jdbcType="DATE"/>
+        <result property="updator" column="UPDATOR" jdbcType="VARCHAR"/>
+        <result property="updatorName" column="UPDATOR_NAME" jdbcType="VARCHAR"/>
+        <result property="treeId" column="TREE_ID" jdbcType="VARCHAR"/>
+        <result property="isDelete" column="IS_DELETE" jdbcType="VARCHAR"/>
+        <result property="describe" column="DESCRIBE" jdbcType="VARCHAR"/>
+
+    </resultMap>
+
+    <resultMap id="tooFileVo" type="com.workhub.larktools.vo.ToolFileVo">
+        <result property="id" column="ID" jdbcType="VARCHAR"/>
+        <result property="fileId" column="FILE_ID" jdbcType="VARCHAR"/>
+        <result property="fileName" column="FILE_NAME" jdbcType="VARCHAR"/>
+        <result property="uploadDate" column="upload_time" jdbcType="VARCHAR"/>
+        <result property="uploaderName" column="CREATOR_NAME" jdbcType="VARCHAR"/>
+        <result property="nodeName" column="NODE_NAME" jdbcType="VARCHAR"/>
+        <result property="describe" column="DESCRIBE" jdbcType="VARCHAR"/>
+
+    </resultMap>
+
+    <insert id="add">
+        insert into tool_file(ID,FILE_ID, FILE_NAME, FILE_EXT, CREATE_TIME,CREATOR,CREATOR_NAME,TREE_ID,DESCRIBE)
+        values (#{params.id},#{params.fileId}, #{params.fileName},#{params.fileExt} ,sysdate, #{params.creator},#{params.creatorName}, #{params.treeId},#{params.describe})
+    </insert>
+
+    <!--更新属于哪个树节点-->
+    <update id="updateTreeNode">
+        update  tool_file set
+        TREE_ID = #{params.treeId},
+        update_time = sysdate,
+        updator = #{params.updator},
+        UPDATOR_NAME = #{params.updatorName}
+        where file_id = #{params.fileId}
+    </update>
+
+
+    <update id="delete">
+        update tool_file t2
+           set t2.is_delete = '1',
+                update_time = sysdate,
+                updator = #{params.updator},
+                UPDATOR_NAME = #{params.updatorName}
+         where t2.file_id = #{params.fileId}
+    </update>
+
+    <!-- 查询某个节点下的文件  -->
+    <select id="queryNodeFile" resultMap="tooFileVo">
+               select f.file_id,
+                       file_name || decode(nvl(file_ext, 'null'), 'null', '', '.' || file_ext) as file_name,
+                       f.creator_name,
+                       to_char(f.create_time, 'yyyy-mm-dd hh24:mi:ss') as upload_time,
+                       t.node_name,
+                       f.describe
+                  from TOOL_FILE f, TOOL_TREE t
+                 where f.is_delete = '0'
+                   and f.tree_id = t.id
+                   and t.id = #{treeId}
+                  order by t.create_time desc
+    </select>
+    <!-- 查询所有节点下的文件  -->
+    <select id="queryAllFile" resultMap="tooFileVo">
+              select f.file_id,
+               file_name || decode(nvl(file_ext, 'null'), 'null', '', '.' || file_ext) as file_name,
+               f.creator_name uploader_name,
+               to_char(f.create_time, 'yyyy-mm-dd hh24:mi:ss') as upload_time,
+               t.node_name,
+               f.describe
+          from TOOL_FILE f,
+               (select t.id,
+                       t.node_name,
+                       level             as tlevel,
+                       t.pid,
+                       create_time,
+                       order_by,
+                       connect_by_isleaf is_leaf
+                  from tool_tree t
+                 where t.is_delete = '0'
+                 start with t.id = in (select o.tree_id from tool_tree_org o where o.is_delete='0' and o.org_code=#{orgCode})
+                connect by t.pid = prior t.id) t
+         where f.is_delete = '0'
+           and f.tree_id = t.id
+         order by t.tlevel,
+                  t.order_by,
+                  t.create_time desc,
+                  f.create_time desc
+    </select>
+</mapper>

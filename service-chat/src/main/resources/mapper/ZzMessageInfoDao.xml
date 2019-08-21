@@ -68,8 +68,8 @@
 
     <!--新增所有列-->
     <insert id="insert">
-        insert into WORKHUB_IWORK.ZZ_MESSAGE_INFO(MSG_ID,SENDER, RECEIVER, CREATETIME, LEVELS, CONTENT, TYPE)
-        values (#{msgId},#{sender}, #{receiver}, #{createtime}, #{levels}, #{content}, #{type})
+        insert into WORKHUB_IWORK.ZZ_MESSAGE_INFO(MSG_ID,SENDER, RECEIVER, CREATETIME, LEVELS, CONTENT, TYPE,ISCROSS)
+        values (#{msgId},#{sender}, #{receiver}, #{createtime}, #{levels}, #{content}, #{type}, #{iscross})
     </insert>
 
     <!--通过主键修改数据-->

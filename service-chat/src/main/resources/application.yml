@@ -101,3 +101,5 @@ log:
     module: service-chat
 #用户上传文件大小限制（单位M）
 file_size_max: 500
+#日志存放目录
+self-log-path: C:/lark_log

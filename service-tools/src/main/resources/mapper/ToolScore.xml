@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.workhub.larktools.dao.ToolScoreDao">
+
+    <resultMap id="toolScore" type="com.workhub.larktools.entity.ToolScore">
+        <result property="id" column="ID" jdbcType="VARCHAR"/>
+        <result property="toolId" column="TOOL_ID" jdbcType="VARCHAR"/>
+        <result property="createTime" column="CREATE_TIME" jdbcType="DATE"/>
+        <result property="creator" column="CREATOR" jdbcType="VARCHAR"/>
+        <result property="creatorName" column="CREATOR_NAME" jdbcType="VARCHAR"/>
+        <result property="score" column="score" jdbcType="NUMERIC"/>
+        <result property="isDelete" column="IS_DELETE" jdbcType="VARCHAR"/>
+        <result property="updateTime" column="UPDATE_TIME" jdbcType="DATE"/>
+        <result property="updator" column="UPDATOR" jdbcType="VARCHAR"/>
+        <result property="updatorName" column="UPDATOR_NAME" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <resultMap id="toolScoreVo" type="com.workhub.larktools.vo.ToolScoreVo">
+        <result property="id" column="ID" jdbcType="VARCHAR"/>
+        <result property="fileId" column="FILE_ID" jdbcType="VARCHAR"/>
+        <result property="fileName" column="FILE_NAME" jdbcType="VARCHAR"/>
+        <result property="createTime" column="create_time" jdbcType="VARCHAR"/>
+        <result property="creatorName" column="CREATOR_NAME" jdbcType="VARCHAR"/>
+        <result property="score" column="SCORE" jdbcType="VARCHAR"/>
+
+    </resultMap>
+
+    <insert id="add">
+        insert into TOOL_SCORE(ID,TOOL_ID, CREATE_TIME,CREATOR,CREATOR_NAME,SCORE)
+        values (#{params.id},#{params.toolId}, sysdate, #{params.creator},#{params.creatorName}, #{params.score})
+    </insert>
+
+    <select id="queryList" resultMap="toolScoreVo">
+                select r.id,
+                       f.file_id,
+                       r.creator_name,
+                       r.create_time,
+                       to_char(r.score) score,
+                       f.file_name ||
+                       decode(nvl(f.file_ext, 'null'), 'null', '', '.' || f.file_ext) as file_name
+                  from TOOL_SCORE r, TOOL_FILE f
+                 where r.is_delete = '0'
+                   and r.tool_id = f.file_id
+                   and r.tool_id = #{fileId}
+                   order by r.create_time desc
+    </select>
+</mapper>
