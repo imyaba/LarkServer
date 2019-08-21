@@ -44,6 +44,8 @@ eureka:
 
 ###fastdfs配置
 fdfs:
+  ###后期文件扩容对group1进行扩容storage
+  groupName: group1
   soTimeout: 1500 #socket连接超时时长
   connectTimeout: 600 #连接tracker服务器超时时长
   ###nginx反向监听storage服务配置，ip（nginx配置放在前台，后台只提供相对路径，防止后期迁移服务器后，所有的头像数据全部不显示了）
