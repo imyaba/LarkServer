@@ -29,6 +29,10 @@ public class GroupVO {
     private String iscross;
     //群组成员个数
     private String memberNums;
+    //群主id
+    private String groupOwnerId;
+    //群主姓名
+    private String groupOwnerName;
 
     public String getGroupId() {
         return groupId;
@@ -140,5 +144,21 @@ public class GroupVO {
 
     public void setIscross(String iscross) {
         this.iscross = iscross;
+    }
+
+    public String getGroupOwnerId() {
+        return groupOwnerId;
+    }
+
+    public void setGroupOwnerId(String groupOwnerId) {
+        this.groupOwnerId = groupOwnerId;
+    }
+
+    public String getGroupOwnerName() {
+        return groupOwnerName;
+    }
+
+    public void setGroupOwnerName(String groupOwnerName) {
+        this.groupOwnerName = groupOwnerName;
     }
 }

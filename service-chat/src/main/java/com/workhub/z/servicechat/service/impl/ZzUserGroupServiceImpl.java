@@ -233,6 +233,8 @@ public class ZzUserGroupServiceImpl implements ZzUserGroupService {
                 contactVO.setIsMute(false);
 //               群组密级
                 contactVO.setSecretLevel(Integer.parseInt(group.getLevels()));
+                contactVO.setGroupOwnerId(common.nulToEmptyString(group.getGroupOwnerId()));
+                contactVO.setGroupOwnerName(common.nulToEmptyString(group.getGroupOwnerName()));
                 try {
                     contactVO.setMemberNum(Math.toIntExact(this.zzGroupService.groupUserListTotal(group.getGroupId())));
                 } catch (Exception e) {

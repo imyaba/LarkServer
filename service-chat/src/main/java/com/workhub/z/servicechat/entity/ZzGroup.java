@@ -41,6 +41,12 @@ public class ZzGroup implements Serializable {
     private String groupImg;
     //是否跨越场所
     private String iscross;
+    //创建人姓名
+    private String creatorName;
+    //群主id
+    private String groupOwnerId;
+    //群主姓名
+    private String groupOwnerName;
 
     public String getGroupId() {
         return groupId;
@@ -162,6 +168,30 @@ public class ZzGroup implements Serializable {
         this.iscross = iscross;
     }
 
+    public String getCreatorName() {
+        return creatorName;
+    }
+
+    public void setCreatorName(String creatorName) {
+        this.creatorName = creatorName;
+    }
+
+    public String getGroupOwnerId() {
+        return groupOwnerId;
+    }
+
+    public void setGroupOwnerId(String groupOwnerId) {
+        this.groupOwnerId = groupOwnerId;
+    }
+
+    public String getGroupOwnerName() {
+        return groupOwnerName;
+    }
+
+    public void setGroupOwnerName(String groupOwnerName) {
+        this.groupOwnerName = groupOwnerName;
+    }
+
     @Override
     public String toString() {
         return "ZzGroup{" +
@@ -180,6 +210,9 @@ public class ZzGroup implements Serializable {
                 ", isclose='" + isclose + '\'' +
                 ", groupImg='" + groupImg + '\'' +
                 ", iscross='" + iscross + '\'' +
+                ", creatorName='" + creatorName + '\'' +
+                ", groupOwnerId='" + groupOwnerId + '\'' +
+                ", groupOwnerName='" + groupOwnerName + '\'' +
                 '}';
     }
 

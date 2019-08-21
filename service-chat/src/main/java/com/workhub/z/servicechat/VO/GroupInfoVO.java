@@ -26,6 +26,10 @@ public class GroupInfoVO
     private String creatorName;
 //  群组成员数量
     private Integer memberNum;
+    //群主id
+    private String groupOwnerId;
+    //群主姓名
+    private String groupOwnerName;
 
     public void setId(String id){
         this.id = id;
@@ -90,5 +94,21 @@ public class GroupInfoVO
 
     public void setCreatorName(String creatorName) {
         this.creatorName = creatorName;
+    }
+
+    public String getGroupOwnerId() {
+        return groupOwnerId;
+    }
+
+    public void setGroupOwnerId(String groupOwnerId) {
+        this.groupOwnerId = groupOwnerId;
+    }
+
+    public String getGroupOwnerName() {
+        return groupOwnerName;
+    }
+
+    public void setGroupOwnerName(String groupOwnerName) {
+        this.groupOwnerName = groupOwnerName;
     }
 }
