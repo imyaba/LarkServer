@@ -7,11 +7,14 @@ import com.github.hollykunge.comtants.FileComtants;
 import com.github.hollykunge.entity.FileInfoEntity;
 import com.github.hollykunge.entity.FileServerPathEntity;
 import com.github.hollykunge.mapper.FileInfoMapper;
+import com.github.hollykunge.mapper.FileServerPathMapper;
 import com.github.hollykunge.security.common.biz.BaseBiz;
 import com.github.hollykunge.security.common.exception.BaseException;
 import com.github.hollykunge.security.common.util.EntityUtils;
+import com.github.hollykunge.security.common.util.UUIDUtils;
 import com.github.hollykunge.security.common.vo.FileInfoVO;
 import com.github.hollykunge.util.*;
+import com.github.hollykunge.vo.JwtInfoVO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.aop.framework.AopContext;
 import org.springframework.beans.BeanUtils;
@@ -46,6 +49,9 @@ public class FileInfoBiz extends BaseBiz<FileInfoMapper, FileInfoEntity> {
     private AppendFileUtils appendFileUtils;
     @Autowired
     private CacheRedis cacheRedis;
+
+    @Autowired
+    private FileServerPathMapper fileServerPathMapper;
 
 
     @Override
@@ -136,27 +142,30 @@ public class FileInfoBiz extends BaseBiz<FileInfoMapper, FileInfoEntity> {
 
     /**
      * 上传加密文件(文件分块上传)
-     *
-     * @param file     文件
+     * @param file 文件
+     * @param md5key 整个文件的唯一性标识
+     * @param currentNo 当前块
+     * @param totalSize 总块数
+     * @param fileInfo 文件基本信息
+     * @param jwtInfoVO jwttoken解析用户结果实体类
      * @return 最后一块时，返回文件上传基本信息值
      * @throws Exception
      */
     public FileInfoVO uploadAppendSensitiveFile(MultipartFile file,String md5key,
                                                 String currentNo,String totalSize,
-                                                FileInfoEntity fileInfo) throws Exception {
+                                                FileInfoEntity fileInfo,
+                                                JwtInfoVO jwtInfoVO) throws Exception {
         if(Integer.parseInt(currentNo)>Integer.parseInt(totalSize)){
             throw new BaseException("当前块数不能大于总块数...");
         }
         //先从redies中获取相同文件,进行秒传实现
         if(!StringUtils.isEmpty(md5key)){
-            String fileServerPathId = ((FileInfoBiz) AopContext.currentProxy()).uploadFileCache(md5key, null);
+            String fileServerPathId = cacheRedis.get("files:"+md5key);
             //秒传实现如果有id，则进行保存数据操作，直接响应给客户端
             if (!StringUtils.isEmpty(fileServerPathId)) {
-                FileInfoEntity fileInforEntity = new FileInfoEntity();
-                this.fileToEntity(file, fileInforEntity, null);
-                fileInforEntity.setFilePathId(fileServerPathId);
-                mapper.insertSelective(fileInforEntity);
-                FileInfoVO fileInforVO = this.transferEntityToVo(fileInforEntity);
+                fileInfo.setFilePathId(fileServerPathId);
+                mapper.insertSelective(fileInfo);
+                FileInfoVO fileInforVO = this.transferEntityToVo(fileInfo);
                 return fileInforVO;
             }
         }
@@ -166,20 +175,18 @@ public class FileInfoBiz extends BaseBiz<FileInfoMapper, FileInfoEntity> {
         String isSuccessNo = (String) fileCard.get("isSuccessNo");
         //最后一块时进行数据库保存操作
         if (currentNo.equals(totalSize)) {
-//            FileInfoEntity fileInforEntity = new FileInfoEntity();
-            FileServerPathEntity fileServerPathEntity = new FileServerPathEntity();
-            this.fileToEntity(file, null, fileServerPathEntity);
+            FileServerPathEntity fileServerPathEntity = this.generFileServerPathEntity(jwtInfoVO);
             fileServerPathEntity.setPath(path);
             fileServerPathEntity.setFileEncrype(FileComtants.SENSITIVE_CIPHER_TYPE);
             try {
-                fileServerPathBiz.insertSelective(fileServerPathEntity);
+                fileServerPathMapper.insertSelective(fileServerPathEntity);
                 fileInfo.setFilePathId(fileServerPathEntity.getId());
                 mapper.insertSelective(fileInfo);
                 //缓存整个文件唯一性编码到redies，做秒传功能
                 if(!StringUtils.isEmpty(md5key)){
                     cacheRedis.remove(FileComtants.REDIS_KEY_APPEND_FILE+md5key);
                     cacheRedis.remove(FileComtants.REDIS_KEY_PRE+md5key);
-                    ((FileInfoBiz) AopContext.currentProxy()).uploadFileCache(md5key, fileServerPathEntity.getId());
+                    cacheRedis.set("files:"+md5key,fileServerPathEntity.getId(),525600);
                 }
                 fileInforVO = this.transferEntityToVo(fileInfo);
                 //将最后一次的参数也返回给调用方,下一块为总块数,成功块数为总块数
@@ -201,15 +208,6 @@ public class FileInfoBiz extends BaseBiz<FileInfoMapper, FileInfoEntity> {
         fileInforVO.setNextNo(String.valueOf(Integer.parseInt(isSuccessNo)+1));
         fileInforVO.setTotalSize(totalSize);
         return fileInforVO;
-    }
-
-    public Map<String, Object> downLoadAppendFile(String path, String fileName) throws IOException {
-        byte[] fileIO = null;
-        fileIO = dfsClient.downloadCipherSensitiveFile(path);
-        Map<String, Object> result = new HashMap<String, Object>();
-        result.put("fileName", fileName);
-        result.put("fileByte", fileIO);
-        return result;
     }
 
     /**
@@ -412,6 +410,21 @@ public class FileInfoBiz extends BaseBiz<FileInfoMapper, FileInfoEntity> {
             EntityUtils.setCreatAndUpdatInfo(fileServerPathEntity);
         }
         return;
+    }
+
+    /**
+     * 生成FileServerPathEntity私有方法
+     * @param jwtInfoVO
+     * @return
+     */
+    private FileServerPathEntity generFileServerPathEntity(JwtInfoVO jwtInfoVO){
+        FileServerPathEntity fileServerPathEntity = new FileServerPathEntity();
+        if(jwtInfoVO != null){
+            BeanUtils.copyProperties(jwtInfoVO,fileServerPathEntity);
+        }
+        fileServerPathEntity.setId(UUIDUtils.generateShortUuid());
+        fileServerPathEntity.setStatus(FileComtants.EFECTIVE_FILE);
+        return fileServerPathEntity;
     }
 
     private FileInfoVO transferEntityToVo(FileInfoEntity fileInfoEntity) {

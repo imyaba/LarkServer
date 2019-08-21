@@ -92,3 +92,18 @@ redis:
   database: 4
 prop:
   upload-folder: ./files
+
+
+##hystrix禁止服务超时时间
+hystrix:
+  threadpool:
+    default:
+      coreSize: 10000 ##并发执行的最大线程数，默认10
+      maxQueueSize: 10000 ##BlockingQueue的最大队列数
+      queueSizeRejectionThreshold: 5000 ##即使maxQueueSize没有达到，达到queueSizeRejectionThreshold该值后，请求也会被拒绝
+  command:
+    default:
+      execution:
+        isolation:
+          thread:
+            timeoutInMilliseconds: 60000
