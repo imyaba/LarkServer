@@ -3,6 +3,8 @@
 <configuration>
     <!-- 读取springboot工程的properties配置文件showConsoleInf属性 判断是否输出console日志 -->
     <springProperty scope="context" name="showConsoleInf" source="showConsoleInf" defaultValue="1"/>
+    <!-- 日志存放根目录 -->
+    <springProperty scope="context" name="self-log-path" source="self-log-path" defaultValue="C:/lark_log"/>
     <!-- 开发时候console输出 -->
     <appender name="consoleLog" class="ch.qos.logback.core.ConsoleAppender">
         <!--
@@ -35,7 +37,7 @@
         <!--滚动策略 每天一份-->
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <!--路径-->
-            <fileNamePattern>service-chat/logs/sql/sql.%d.log</fileNamePattern>
+            <fileNamePattern>${self-log-path}/service-chat/logs/sql/sql.%d.log</fileNamePattern>
         </rollingPolicy>
     </appender>
     <!-- 记录info日志-->
@@ -55,7 +57,7 @@
         <!--滚动策略  每天一份-->
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <!--路径-->
-            <fileNamePattern>service-chat/logs/info/info.%d.log</fileNamePattern>
+            <fileNamePattern>${self-log-path}/service-chat/logs/info/info.%d.log</fileNamePattern>
         </rollingPolicy>
     </appender>
     <!-- 记录error日志 -->
@@ -75,7 +77,7 @@
         <!--滚动策略  每天一份-->
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <!--路径-->
-            <fileNamePattern>service-chat/logs/error/error.%d.log</fileNamePattern>
+            <fileNamePattern>${self-log-path}/service-chat/logs/error/error.%d.log</fileNamePattern>
         </rollingPolicy>
     </appender>
     <!-- 打印mybaits的sql，并存放到专门的日志里 级别必须是debug additivity=false不在向上传递，以免造成日志重复打印-->
