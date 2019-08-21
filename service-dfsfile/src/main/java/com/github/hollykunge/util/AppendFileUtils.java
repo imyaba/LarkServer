@@ -9,6 +9,8 @@ import com.github.tobato.fastdfs.domain.StorePath;
 import com.github.tobato.fastdfs.service.AppendFileStorageClient;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
+import org.joda.time.DateTime;
+import org.joda.time.Interval;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -41,6 +43,14 @@ public class AppendFileUtils {
     private String sensitiveOriginalFile;
     @Autowired
     private CacheRedis cacheRedis;
+
+    private DateTime sentiveStartDate;
+
+    private DateTime sentiveEndDate;
+
+    private DateTime uploadStartDate;
+
+    private DateTime uploadEndDate;
 
 
     /**
@@ -90,11 +100,16 @@ public class AppendFileUtils {
             path = fileAppendInfoVO.getFilePath();
             path = path.substring(path.indexOf("/")+1, path.length());
         }
+        sentiveStartDate = new DateTime();
         FileDeEncrypt deEncrypt = new FileDeEncrypt(FileComtants.ENCRYPT_ROLE);
         byte[] bytes = deEncrypt.encryptFile(file.getBytes());
+        sentiveEndDate = new DateTime();
+        log.info("加密文件时间为：");
+        this.getDatePoor(sentiveStartDate,sentiveEndDate);
         ByteArrayInputStream inputStream = new ByteArrayInputStream(bytes);
         //1.传第一块的文件到服务器
         if (StringUtils.isEmpty(path)) {
+            uploadStartDate = new DateTime();
             StorePath storePath = appendFileStorageClient.uploadAppenderFile(groupName, inputStream, bytes.length, FilenameUtils.getExtension(sensitiveOriginalFile));
             //1.1 缓存成功的文件块信息，文件块有效时长30分钟
             FileAppendInfoVO fileAppendInfoCache = this.tranferVO(fileKey,currentNo, storePath.getFullPath(),totalSize);
@@ -104,10 +119,14 @@ public class AppendFileUtils {
             cacheRedis.set(FileComtants.REDIS_KEY_PRE+fileKey,
                     JSONObject.toJSONString(fileAppendInfoCache),
                     35,"该缓存值35分钟失效，防止存在垃圾文件片情况");
+            uploadEndDate = new DateTime();
+            log.info("上传文件并进行redies时间为：");
+            this.getDatePoor(uploadStartDate,uploadEndDate);
             result.put("isSuccessNo", currentNo);
             result.put("path", storePath.getFullPath());
             return result;
         }
+        uploadStartDate = new DateTime();
         //2.续传文件到服务器
         appendFileStorageClient.appendFile(groupName, path, inputStream, bytes.length);
         //3.缓存成功的文件块信息,文件块有效时长30分钟
@@ -118,9 +137,18 @@ public class AppendFileUtils {
         cacheRedis.set(FileComtants.REDIS_KEY_PRE+fileKey,
                 JSONObject.toJSONString(fileAppendInfoCache),
                 35,"该缓存值35分钟失效，防止存在垃圾文件片情况");
+        uploadEndDate = new DateTime();
+        log.info("续传文件并进行redies时间为：");
+        this.getDatePoor(uploadStartDate,uploadEndDate);
         result.put("isSuccessNo", currentNo);
         result.put("path", fullPath);
         return result;
+    }
+
+    public String getDatePoor(DateTime startTime, DateTime endTime) {
+        Interval interval = new Interval(startTime, endTime);
+        log.info("响应时间:{}毫秒", interval.toDurationMillis());
+        return "";
     }
 
     /**
