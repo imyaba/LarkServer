@@ -1,6 +1,7 @@
 package com.github.hollykunge.biz;
 
 import com.ace.cache.annotation.Cache;
+import com.ace.cache.api.impl.CacheRedis;
 import com.alibaba.fastjson.JSON;
 import com.github.hollykunge.comtants.FileComtants;
 import com.github.hollykunge.entity.FileInfoEntity;
@@ -41,6 +42,10 @@ public class FileInfoBiz extends BaseBiz<FileInfoMapper, FileInfoEntity> {
     private FastDFSClientWrapper dfsClient;
     @Autowired
     private FileServerPathBiz fileServerPathBiz;
+    @Autowired
+    private AppendFileUtils appendFileUtils;
+    @Autowired
+    private CacheRedis cacheRedis;
 
 
     @Override
@@ -82,7 +87,7 @@ public class FileInfoBiz extends BaseBiz<FileInfoMapper, FileInfoEntity> {
     }
 
     /**
-     * 上传加密文件（采用base64加密方式）
+     * 上传加密文件
      *
      * @param file          文件
      * @param sensitiveType 加密类型（1为base64加密，2为位移加密法，3为文件流加密）
@@ -127,6 +132,84 @@ public class FileInfoBiz extends BaseBiz<FileInfoMapper, FileInfoEntity> {
         }
         FileInfoVO fileInforVO = this.transferEntityToVo(fileInforEntity);
         return fileInforVO;
+    }
+
+    /**
+     * 上传加密文件(文件分块上传)
+     *
+     * @param file     文件
+     * @return 最后一块时，返回文件上传基本信息值
+     * @throws Exception
+     */
+    public FileInfoVO uploadAppendSensitiveFile(MultipartFile file,String md5key,
+                                                String currentNo,String totalSize,
+                                                FileInfoEntity fileInfo) throws Exception {
+        if(Integer.parseInt(currentNo)>Integer.parseInt(totalSize)){
+            throw new BaseException("当前块数不能大于总块数...");
+        }
+        //先从redies中获取相同文件,进行秒传实现
+        if(!StringUtils.isEmpty(md5key)){
+            String fileServerPathId = ((FileInfoBiz) AopContext.currentProxy()).uploadFileCache(md5key, null);
+            //秒传实现如果有id，则进行保存数据操作，直接响应给客户端
+            if (!StringUtils.isEmpty(fileServerPathId)) {
+                FileInfoEntity fileInforEntity = new FileInfoEntity();
+                this.fileToEntity(file, fileInforEntity, null);
+                fileInforEntity.setFilePathId(fileServerPathId);
+                mapper.insertSelective(fileInforEntity);
+                FileInfoVO fileInforVO = this.transferEntityToVo(fileInforEntity);
+                return fileInforVO;
+            }
+        }
+        FileInfoVO fileInforVO = null;
+        Map<String,Object> fileCard = appendFileUtils.uploadCipherSensitiveFile(file,md5key,currentNo,totalSize);
+        String path = (String) fileCard.get("path");
+        String isSuccessNo = (String) fileCard.get("isSuccessNo");
+        //最后一块时进行数据库保存操作
+        if (currentNo.equals(totalSize)) {
+//            FileInfoEntity fileInforEntity = new FileInfoEntity();
+            FileServerPathEntity fileServerPathEntity = new FileServerPathEntity();
+            this.fileToEntity(file, null, fileServerPathEntity);
+            fileServerPathEntity.setPath(path);
+            fileServerPathEntity.setFileEncrype(FileComtants.SENSITIVE_CIPHER_TYPE);
+            try {
+                fileServerPathBiz.insertSelective(fileServerPathEntity);
+                fileInfo.setFilePathId(fileServerPathEntity.getId());
+                mapper.insertSelective(fileInfo);
+                //缓存整个文件唯一性编码到redies，做秒传功能
+                if(!StringUtils.isEmpty(md5key)){
+                    cacheRedis.remove(FileComtants.REDIS_KEY_APPEND_FILE+md5key);
+                    cacheRedis.remove(FileComtants.REDIS_KEY_PRE+md5key);
+                    ((FileInfoBiz) AopContext.currentProxy()).uploadFileCache(md5key, fileServerPathEntity.getId());
+                }
+                fileInforVO = this.transferEntityToVo(fileInfo);
+                //将最后一次的参数也返回给调用方,下一块为总块数,成功块数为总块数
+                fileInforVO.setNextNo(totalSize);
+                fileInforVO.setTotalSize(totalSize);
+                fileInforVO.setIsSuccessNo(totalSize);
+                return fileInforVO;
+            } catch (Exception e) {
+                //如果数据存入数据库失败，回滚fast服务的文件
+                log.error(CommonUtil.getExceptionMessage(e));
+                dfsClient.deleteFile(path);
+                throw e;
+            }
+        }
+        fileInforVO = new FileInfoVO();
+        fileInforVO.setFullPath(path);
+        fileInforVO.setIsSuccessNo(isSuccessNo);
+        //设置要传的下一块
+        fileInforVO.setNextNo(String.valueOf(Integer.parseInt(isSuccessNo)+1));
+        fileInforVO.setTotalSize(totalSize);
+        return fileInforVO;
+    }
+
+    public Map<String, Object> downLoadAppendFile(String path, String fileName) throws IOException {
+        byte[] fileIO = null;
+        fileIO = dfsClient.downloadCipherSensitiveFile(path);
+        Map<String, Object> result = new HashMap<String, Object>();
+        result.put("fileName", fileName);
+        result.put("fileByte", fileIO);
+        return result;
     }
 
     /**
@@ -340,12 +423,13 @@ public class FileInfoBiz extends BaseBiz<FileInfoMapper, FileInfoEntity> {
 
     /**
      * 文件存放redies中，时间为一年
+     *
      * @param base64FileName
      * @param fileId
      * @return
      * @throws Exception
      */
-    @Cache(key = "files{1}", result = String.class,expire = 525600)
+    @Cache(key = "files{1}", result = String.class, expire = 525600)
     public String uploadFileCache(String base64FileName, String fileId) throws Exception {
         return fileId;
     }
