@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.github.hollykunge.dao.FileManageDao">
+<mapper namespace="com.github.hollykunge.security.security.dao.FileManageDao">
 
-    <resultMap type="com.github.hollykunge.entity.FileManageInf" id="FileManageInf">
+    <resultMap type="com.github.hollykunge.security.entity.FileManageInf" id="FileManageInf">
         <result property="fileId" column="FILE_ID" jdbcType="VARCHAR"/>
         <result property="fileName" column="FILE_NAME" jdbcType="VARCHAR"/>
         <result property="fileExt" column="FILE_EXT" jdbcType="VARCHAR"/>
@@ -20,7 +20,7 @@
         <result property="fileEncrypeFlg" column="FILE_ENCRYPE_FLG" jdbcType="VARCHAR"/>
         <result property="workType" column="WORK_TYPE" jdbcType="VARCHAR"/>
     </resultMap>
-    <resultMap id="FileMonitoringVO" type="com.github.hollykunge.vo.FileMonitoringVO">
+    <resultMap id="FileMonitoringVO" type="com.github.hollykunge.security.vo.FileMonitoringVO">
         <result property="fileId" column="FILE_ID" jdbcType="VARCHAR"></result>
         <result property="fileName" column="FILE_NAME" jdbcType="VARCHAR"></result>
         <result property="filePath" column="FILE_PATH" jdbcType="VARCHAR"></result>
