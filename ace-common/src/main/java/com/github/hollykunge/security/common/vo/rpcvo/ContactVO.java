@@ -20,6 +20,26 @@ public class ContactVO {
     private boolean isGroup;//群组消息
     private int memberNum;//群组成员数/在线人数
     private int secretLevel;//群组密级
+    //群主id
+    private String groupOwnerId;
+    //群主姓名
+    private String groupOwnerName;
+
+    public String getGroupOwnerId() {
+        return groupOwnerId;
+    }
+
+    public void setGroupOwnerId(String groupOwnerId) {
+        this.groupOwnerId = groupOwnerId;
+    }
+
+    public String getGroupOwnerName() {
+        return groupOwnerName;
+    }
+
+    public void setGroupOwnerName(String groupOwnerName) {
+        this.groupOwnerName = groupOwnerName;
+    }
 
     public boolean isAtMe() {
         return atMe;
