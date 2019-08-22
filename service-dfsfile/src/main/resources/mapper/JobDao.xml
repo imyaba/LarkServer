@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.github.hollykunge.dao.JobDao">
+<mapper namespace="com.github.hollykunge.security.dao.JobDao">
     <!--定时任务处理24小时未发送附件-->
     <select id="getUnUsedFileList" resultType="String">
         select t.path
