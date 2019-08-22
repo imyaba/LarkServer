@@ -1,18 +1,14 @@
 package com.github.hollykunge.controller;
 
-import com.github.hollykunge.biz.AppendFileHystrixCommondBiz;
 import com.github.hollykunge.biz.FileInfoBiz;
 import com.github.hollykunge.comtants.FileComtants;
 import com.github.hollykunge.entity.FileInfoEntity;
-import com.github.hollykunge.entity.FileServerPathEntity;
 import com.github.hollykunge.jwt.FileJwtInfo;
 import com.github.hollykunge.security.common.exception.BaseException;
 import com.github.hollykunge.security.common.msg.ObjectRestResponse;
 import com.github.hollykunge.security.common.rest.BaseController;
-import com.github.hollykunge.security.common.util.EntityUtils;
 import com.github.hollykunge.security.common.util.UUIDUtils;
 import com.github.hollykunge.security.common.vo.FileInfoVO;
-import com.github.hollykunge.util.AppendFileUtils;
 import com.github.hollykunge.util.FastDFSClientWrapper;
 import com.github.hollykunge.util.FileTypeEnum;
 import com.github.hollykunge.vo.JwtInfoVO;
@@ -22,7 +18,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -229,8 +224,19 @@ public class FastDfsController extends BaseController<FileInfoBiz, FileInfoEntit
      * @throws Exception
      */
     @ResponseBody
-    @PostMapping("/appendUploadFile")
-    public ObjectRestResponse<FileInfoVO> uploadAppendFile(@RequestParam("file") MultipartFile file
+    @RequestMapping(value = "/appendUploadFile",method = RequestMethod.POST)
+    @HystrixCommand(
+            fallbackMethod = "uploadAppendFileFallback",
+            threadPoolProperties = {
+                @HystrixProperty(name = "coreSize", value = "50"),
+                @HystrixProperty(name = "maxQueueSize", value = "500"),
+                @HystrixProperty(name = "queueSizeRejectionThreshold", value = "20")},
+            commandProperties = {
+                @HystrixProperty(name = "execution.isolation.thread.timeoutInMilliseconds", value = "30000"),
+                @HystrixProperty(name = "circuitBreaker.requestVolumeThreshold", value = "20")
+            }
+            )
+    public ObjectRestResponse<FileInfoVO> uploadAppendFile(@RequestParam("file") MultipartFile file,HttpServletRequest request
     ) throws Exception {
         String path = request.getHeader("path");
         String currentNo = request.getHeader("currentNo");
@@ -265,18 +271,26 @@ public class FastDfsController extends BaseController<FileInfoBiz, FileInfoEntit
         FileInfoEntity fileInfoEntity = null;
         JwtInfoVO jwtInfoVO = fileJwtInfo.getJwtInfoVO(request);
         if (Integer.parseInt(currentNo) == Integer.parseInt(totalSize)) {
-            fileInfoEntity = this.transferFileInfo(fileName, Double.valueOf(fileSize),jwtInfoVO);
+            fileInfoEntity = this.transferFileInfo(fileName, Double.valueOf(fileSize), jwtInfoVO);
         }
         //文件分块上传，加密方式采用文件流加密
-        ObjectRestResponse<FileInfoVO> result = new AppendFileHystrixCommondBiz(baseBiz, file, key, currentNo, totalSize, fileInfoEntity,jwtInfoVO).execute();
+        FileInfoVO fileInfoVO = baseBiz.uploadAppendSensitiveFile(file, key, currentNo, totalSize, fileInfoEntity, jwtInfoVO);
+        return new ObjectRestResponse<FileInfoVO>().data(fileInfoVO).rel(true);
+    }
+
+    private ObjectRestResponse<FileInfoVO> uploadAppendFileFallback( MultipartFile file,HttpServletRequest request
+    ) throws Exception {
+        ObjectRestResponse<FileInfoVO> result = new ObjectRestResponse<FileInfoVO>();
+        result.setStatus(503);
+        result.setMessage("服务忙...稍后重试");
         return result;
     }
 
-    private FileInfoEntity transferFileInfo(String fileName, Double fileSize,JwtInfoVO jwtInfoVO) throws Exception {
+    private FileInfoEntity transferFileInfo(String fileName, Double fileSize, JwtInfoVO jwtInfoVO) throws Exception {
         FileInfoEntity fileInfoEntity = new FileInfoEntity();
         fileInfoEntity.setId(UUIDUtils.generateShortUuid());
-        if(jwtInfoVO != null){
-            BeanUtils.copyProperties(jwtInfoVO,fileInfoEntity);
+        if (jwtInfoVO != null) {
+            BeanUtils.copyProperties(jwtInfoVO, fileInfoEntity);
         }
         String suffix = "";
         String fileExt = "";
@@ -299,6 +313,4 @@ public class FastDfsController extends BaseController<FileInfoBiz, FileInfoEntit
 
         return fileInfoEntity;
     }
-
-
 }
